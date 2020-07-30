@@ -57,14 +57,12 @@ impl MaterialAttribute {
 
     fn new_image(&self, w: u32, h: u32) -> DynamicImage {
         match self {
-            MaterialAttribute::AmbientOcclusion => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Albedo => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Depth => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Emissive => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Metallic => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::MetallicRoughness => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Normal => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Roughness => DynamicImage::new_rgb8(w, h),
+            MaterialAttribute::AmbientOcclusion
+            | MaterialAttribute::Depth
+            | MaterialAttribute::MetallicRoughness
+            | MaterialAttribute::Normal => DynamicImage::new_rgb8(w, h),
+            MaterialAttribute::Albedo => DynamicImage::new_rgba8(w, h),
+            _ => unimplemented!(),
         }
     }
 
