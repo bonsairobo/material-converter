@@ -29,7 +29,9 @@ fn convert_images_to_bevy_pbr(
     for (attr, path) in &assignments {
         let img = image::open(path).with_context(|| format!("{path:?}"))?;
         let Some(converted_img) = attr.convert_image(&img) else {
-            eprintln!("Skipping {:?}; Depth format not supported yet", path);
+            if attr == &MaterialAttribute::Depth {
+                eprintln!("Skipping {:?}; Depth format not supported yet", path);
+            }
             continue;
         };
         let new_name = attr.canonical_name();
