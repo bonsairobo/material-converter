@@ -5,7 +5,7 @@ pub fn feeling_lucky(
     input_directories: &[PathBuf],
     output_format: &MaterialFormat,
     output_directory: &Path,
-) -> std::io::Result<()> {
+) -> anyhow::Result<()> {
     let mut converted_input_dirs = Vec::new();
     for input_dir in input_directories {
         let guesses_path = input_dir.join("guesses").with_extension("ron");

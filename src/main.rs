@@ -74,7 +74,7 @@ enum Args {
     },
 }
 
-fn main() -> std::io::Result<()> {
+fn main() -> anyhow::Result<()> {
     match Args::parse() {
         Args::GuessInput {
             input: input_directory,

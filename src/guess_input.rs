@@ -1,4 +1,5 @@
 use super::MaterialAttribute;
+use anyhow::Context;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
@@ -15,10 +16,10 @@ const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
     ("emissi", MaterialAttribute::Emissive),
 ];
 
-pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Result<()> {
+pub fn guess_input(input_dir: &Path, output_file: &Path) -> anyhow::Result<()> {
     let mut guessed_attrs = HashSet::<MaterialAttribute>::new();
     let mut guesses = Vec::<(MaterialAttribute, PathBuf)>::new();
-    for entry in std::fs::read_dir(input_directory)? {
+    for entry in std::fs::read_dir(input_dir).with_context(|| format!("{input_dir:?}"))? {
         let entry = entry?;
         let path = entry.path();
         if !path.is_file() {
@@ -56,7 +57,7 @@ pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Resul
         }
     }
 
-    let s = ron::ser::to_string_pretty(&guesses, Default::default()).unwrap();
+    let s = ron::ser::to_string_pretty(&guesses, Default::default())?;
     std::fs::write(output_file, s)?;
 
     Ok(())
