@@ -66,7 +66,7 @@ enum Args {
         /// The input directories.
         input: Vec<PathBuf>,
         /// The desired output material format.
-        #[arg(long)]
+        #[arg(short, long)]
         format: MaterialFormat,
         /// The output directory. Will be created if it does not exist.
         #[arg(short, long)]
