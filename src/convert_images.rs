@@ -23,7 +23,7 @@ fn convert_images_to_bevy_pbr(
         ron::de::from_reader(File::open(assignment_file)?).unwrap();
 
     let mut metadata = Vec::new();
-    for (attr, path) in assignments.iter() {
+    for (attr, path) in &assignments {
         let img = image::open(path).unwrap();
         let Some(converted_img) = attr.convert_image(&img) else {
             eprintln!("Skipping {:?}; Depth format not supported yet", path);

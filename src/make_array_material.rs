@@ -18,8 +18,8 @@ pub fn make_array_material(
 
     let num_layers = input_directories.len();
 
-    for (attr, _path, (width, height)) in metadata.iter() {
-        let mut concat_img = attr.new_image(*width, height * num_layers as u32);
+    for (attr, _path, (width, height)) in metadata {
+        let mut concat_img = attr.new_image(width, height * num_layers as u32);
         for (i, in_dir) in input_directories.iter().enumerate() {
             let start_y = i as u32 * height;
             let img =

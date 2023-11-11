@@ -31,23 +31,23 @@ pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Resul
         };
 
         let mut found_match = false;
-        for (substr, attr) in SUBSTRING_MAP.iter() {
+        for (substr, attr) in SUBSTRING_MAP {
             if !name.to_string_lossy().to_lowercase().contains(substr) {
                 continue;
             }
 
-            if guessed_attrs.contains(attr) {
+            if guessed_attrs.contains(&attr) {
                 eprintln!(
                     "Guessing {:?} again, requires manual resolution in the output file",
                     attr
                 );
             } else {
-                guessed_attrs.insert(*attr);
+                guessed_attrs.insert(attr);
             }
             if found_match {
                 eprintln!("Found multiple matches for {:?}", path);
             }
-            guesses.push((*attr, path.clone()));
+            guesses.push((attr, path.clone()));
             found_match = true;
         }
 
