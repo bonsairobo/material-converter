@@ -16,7 +16,7 @@ enum Args {
     ///
     /// Given a directory of images, try to assign a material attribute to each
     /// image using heuristics like file name. Produces a RON file to be used
-    /// as input to the convert-images command. Prints to stdout when it can't
+    /// as input to the convert-images command. Prints to stderr when it can't
     /// guess what a file is for or if there are conflicting files.
     GuessInput {
         /// The directory containing the input images.

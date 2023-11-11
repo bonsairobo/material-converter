@@ -1,8 +1,6 @@
 use super::MaterialAttribute;
-use ron::ser::to_string_pretty;
 use std::collections::HashSet;
-use std::path::PathBuf;
-use std::{fs::File, io::Write};
+use std::path::Path;
 
 const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
     ("ao", MaterialAttribute::AmbientOcclusion),
@@ -17,44 +15,49 @@ const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
     ("emissi", MaterialAttribute::Emissive),
 ];
 
-pub fn guess_input(input_directory: &PathBuf, output_file: &PathBuf) -> std::io::Result<()> {
-    // Make the guesses based on substring matching.
+pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Result<()> {
     let mut guessed_attrs = HashSet::<MaterialAttribute>::new();
     let mut guesses = Vec::<(MaterialAttribute, String)>::new();
     for entry in std::fs::read_dir(input_directory)? {
         let entry = entry?;
         let path = entry.path();
-        if path.is_file() {
-            if let Some(name) = path.file_name() {
-                let mut found_match = false;
-                for (substr, attr) in SUBSTRING_MAP.iter() {
-                    if name.to_str().unwrap().to_lowercase().contains(substr) {
-                        if guessed_attrs.contains(attr) {
-                            println!(
-                                "Guessing {:?} again, requires manual resolution in the output file",
-                                attr
-                            );
-                        } else {
-                            guessed_attrs.insert(*attr);
-                        }
-                        if found_match {
-                            println!("Found multiple matches for {:?}", path);
-                        }
-                        guesses.push((*attr, path.to_string_lossy().to_string()));
-                        found_match = true;
-                    }
-                }
+        if !path.is_file() {
+            // Only go one level deep.
+            eprintln!("Skipping directory {path:?}");
+            continue;
+        }
+        let Some(name) = path.file_name() else {
+            continue;
+        };
 
-                if !found_match {
-                    println!("Failed to guess attribute for {:?}", path);
-                }
+        let mut found_match = false;
+        for (substr, attr) in SUBSTRING_MAP.iter() {
+            if !name.to_string_lossy().to_lowercase().contains(substr) {
+                continue;
             }
+
+            if guessed_attrs.contains(attr) {
+                eprintln!(
+                    "Guessing {:?} again, requires manual resolution in the output file",
+                    attr
+                );
+            } else {
+                guessed_attrs.insert(*attr);
+            }
+            if found_match {
+                eprintln!("Found multiple matches for {:?}", path);
+            }
+            guesses.push((*attr, path.to_string_lossy().to_string()));
+            found_match = true;
+        }
+
+        if !found_match {
+            eprintln!("Failed to guess attribute for {:?}", path);
         }
     }
 
-    // Write the results to the output RON file.
-    let s = to_string_pretty(&guesses, Default::default()).unwrap();
-    File::create(output_file)?.write_all(s.as_bytes())?;
+    let s = ron::ser::to_string_pretty(&guesses, Default::default()).unwrap();
+    std::fs::write(output_file, s)?;
 
     Ok(())
 }
