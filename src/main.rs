@@ -9,7 +9,7 @@ use std::path::PathBuf;
     author,
     version,
     about,
-    long_about = "Tool for converting common material image formats."
+    long_about = "Tool for creating array textures from found materials."
 )]
 enum Args {
     /// Use heuristics to guess the material attribute of each file.

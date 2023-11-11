@@ -1,33 +1,23 @@
 # Material Converter
 
-I often find free PBR materials on the Internet, but they aren't in a proper
-format for use with my shaders. So I can use this tool to convert them depending
-on the type of texture. It can also vertically concatenate textures for use as
-"array textures" (like sampler2DArray in GLSL).
+Assemble found PBR materials into a Bevy-compatible format.
 
 ```
-material-converter 0.1.0
-Tool for converting common material image formats.
+Tool for creating array textures from found materials.
 
-USAGE:
-    material-converter <SUBCOMMAND>
+Usage: material-converter <COMMAND>
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+Commands:
+  guess-input          Use heuristics to guess the material attribute of each file
+  convert-images       Convert images to the desired format
+  make-array-material  Combine multiple materials into an array material
+  feeling-lucky        guess-input, convert-images, then make-array-material
+  help                 Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    convert-images         Given an assignment of material attribute to each image file path, convert the images to
-                           the proper formats and give them canonical names
-    feeling-lucky          Do a guess-input, convert-images, and make-array-material all in sequence, assuming all
-                           input materials will be compatible (same size and set of attributes)
-    guess-input            Given a directory of images, try to assign image files to their material attribute using
-                           heuristics like file name. Produces a RON file to be used as input to the convert-images
-                           command. Prints to stdout when it can't guess what a file is for or if there are
-                           conflicting files
-    help                   Prints this message or the help of the given subcommand(s)
-    make-array-material    Combine multiple directories of images into a single directory of images, where the
-                           images of each material attribute are concatenated vertically for use as an array texture
-                           (sampler2DArray in GLSL). Assumes that images of the same attribute also have the same
-                           file name (as ensured by the convert-images command)
+Options:
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
 ```
