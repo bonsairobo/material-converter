@@ -1,11 +1,10 @@
 use super::MaterialAttribute;
-
 use ron::ser::to_string_pretty;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::{fs::File, io::Write};
 
-const SUBSTRING_MAP: [(&'static str, MaterialAttribute); 10] = [
+const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
     ("ao", MaterialAttribute::AmbientOcclusion),
     ("ambient", MaterialAttribute::AmbientOcclusion),
     ("occlusion", MaterialAttribute::AmbientOcclusion),

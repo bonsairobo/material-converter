@@ -1,12 +1,11 @@
 use super::MaterialAttribute;
-
 use image::GenericImage;
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub fn make_array_material(
     input_directories: &[PathBuf],
-    output_directory: &PathBuf,
+    output_directory: &Path,
 ) -> std::io::Result<()> {
     if !output_directory.exists() {
         std::fs::create_dir(output_directory)?;

@@ -1,7 +1,5 @@
 # Material Converter
 
-This is mostly a personal tool for use with the [Amethyst Voxel Mapper](https://github.com/amethyst/voxel-mapper).
-
 I often find free PBR materials on the Internet, but they aren't in a proper
 format for use with my shaders. So I can use this tool to convert them depending
 on the type of texture. It can also vertically concatenate textures for use as

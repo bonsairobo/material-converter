@@ -1,5 +1,4 @@
 use super::{MaterialAttribute, MaterialFormat};
-
 use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
 use std::fs::File;
 use std::path::PathBuf;
@@ -44,7 +43,7 @@ fn convert_images_to_amethyst_format(
         metadata.push((*attr, path.clone(), img.dimensions()));
     }
 
-    combine_metal_and_rough_amethyst(&assignments).map(|img| {
+    if let Some(img) = combine_metal_and_rough_amethyst(&assignments) {
         let path = output_directory
             .join(MaterialAttribute::MetallicRoughness.canonical_name())
             .with_extension("png");
@@ -55,7 +54,7 @@ fn convert_images_to_amethyst_format(
         ));
 
         img.save(path).unwrap()
-    });
+    }
 
     std::fs::write(
         output_directory.join("metadata").with_extension("ron"),
@@ -68,31 +67,29 @@ fn convert_images_to_amethyst_format(
 fn combine_metal_and_rough_amethyst(
     assignments: &[(MaterialAttribute, String)],
 ) -> Option<DynamicImage> {
-    let metal = open_attribute(&assignments, MaterialAttribute::Metallic);
-    let rough = open_attribute(&assignments, MaterialAttribute::Roughness);
+    let metal = open_attribute(assignments, MaterialAttribute::Metallic);
+    let rough = open_attribute(assignments, MaterialAttribute::Roughness);
 
     metal.and_then(|m| {
-        rough
-            .map(|r| {
-                if m.dimensions() != r.dimensions() {
-                    return None;
-                }
+        rough.and_then(|r| {
+            if m.dimensions() != r.dimensions() {
+                return None;
+            }
 
-                // Write the metal and rough grayscale values into the blue and green channels.
-                let mut metal_rough = RgbImage::new(m.width(), m.height());
-                let metal_gray = m.to_luma();
-                let rough_gray = r.to_luma();
-                for (x, y, pixel) in metal_rough.enumerate_pixels_mut() {
-                    *pixel = Rgb([
-                        0,
-                        rough_gray.get_pixel(x, y).0[0],
-                        metal_gray.get_pixel(x, y).0[0],
-                    ]);
-                }
+            // Write the metal and rough grayscale values into the blue and green channels.
+            let mut metal_rough = RgbImage::new(m.width(), m.height());
+            let metal_gray = m.to_luma8();
+            let rough_gray = r.to_luma8();
+            for (x, y, pixel) in metal_rough.enumerate_pixels_mut() {
+                *pixel = Rgb([
+                    0,
+                    rough_gray.get_pixel(x, y).0[0],
+                    metal_gray.get_pixel(x, y).0[0],
+                ]);
+            }
 
-                Some(DynamicImage::ImageRgb8(metal_rough))
-            })
-            .flatten()
+            Some(DynamicImage::ImageRgb8(metal_rough))
+        })
     })
 }
 

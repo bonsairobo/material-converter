@@ -42,7 +42,7 @@ pub enum MaterialAttribute {
 }
 
 impl MaterialAttribute {
-    fn canonical_name(self: &Self) -> &'static str {
+    fn canonical_name(&self) -> &'static str {
         match self {
             MaterialAttribute::AmbientOcclusion => "ao",
             MaterialAttribute::Albedo => "albedo",
@@ -68,9 +68,9 @@ impl MaterialAttribute {
 
     fn convert_image(&self, img: &DynamicImage) -> Option<DynamicImage> {
         match self {
-            MaterialAttribute::Normal => Some(DynamicImage::ImageRgb8(img.to_rgb())),
-            MaterialAttribute::Albedo => Some(DynamicImage::ImageRgba8(img.to_rgba())),
-            MaterialAttribute::AmbientOcclusion => Some(DynamicImage::ImageRgb8(img.to_rgb())),
+            MaterialAttribute::Normal => Some(DynamicImage::ImageRgb8(img.to_rgb8())),
+            MaterialAttribute::Albedo => Some(DynamicImage::ImageRgba8(img.to_rgba8())),
+            MaterialAttribute::AmbientOcclusion => Some(DynamicImage::ImageRgb8(img.to_rgb8())),
             _ => None,
         }
     }
