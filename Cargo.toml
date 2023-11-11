@@ -5,7 +5,7 @@ authors = ["Duncan <bonsairobo@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = { version = "4.4.8", features = ["derive"] }
 image = "0.23.8"
 ron = "0.6.0"
 serde = "1.0.114"
-structopt = "0.3.15"

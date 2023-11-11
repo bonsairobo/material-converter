@@ -42,7 +42,7 @@ pub enum MaterialAttribute {
 }
 
 impl MaterialAttribute {
-    fn canonical_name(&self) -> &'static str {
+    fn canonical_name(&self) -> &str {
         match self {
             MaterialAttribute::AmbientOcclusion => "ao",
             MaterialAttribute::Albedo => "albedo",
