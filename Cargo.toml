@@ -2,7 +2,7 @@
 name = "material-converter"
 version = "0.1.0"
 authors = ["Duncan <bonsairobo@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 clap = { version = "4.4.8", features = ["derive"] }
