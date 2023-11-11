@@ -7,9 +7,7 @@ pub fn make_array_material(
     input_directories: &[PathBuf],
     output_directory: &Path,
 ) -> std::io::Result<()> {
-    if !output_directory.exists() {
-        std::fs::create_dir(output_directory)?;
-    }
+    std::fs::create_dir_all(output_directory)?;
 
     // All of the metadata has to match, so we'll just take that of the first one.
     let first_dir = &input_directories[0];
