@@ -15,7 +15,7 @@ use std::str::FromStr;
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
 pub enum MaterialFormat {
     /// Suitable for use with the Amethyst engine's PBR render pass.
-    AmethystPbr,
+    BevyPbr,
 }
 
 impl FromStr for MaterialFormat {
@@ -23,7 +23,7 @@ impl FromStr for MaterialFormat {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "amethyst" | "amethyst-pbr" => Ok(MaterialFormat::AmethystPbr),
+            "bevy" | "bevy-pbr" => Ok(MaterialFormat::BevyPbr),
             _ => Err(format!("{} is not a supported MaterialFormat", s)),
         }
     }

@@ -1,59 +1,47 @@
 use super::{MaterialAttribute, MaterialFormat};
 use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub fn convert_images(
-    assignment_file: &PathBuf,
-    desired_material_format: &MaterialFormat,
-    output_directory: &PathBuf,
+    assignment_file: &Path,
+    output_format: &MaterialFormat,
+    output_directory: &Path,
 ) -> std::io::Result<()> {
-    match desired_material_format {
-        MaterialFormat::AmethystPbr => {
-            convert_images_to_amethyst_format(assignment_file, output_directory)
-        }
+    match output_format {
+        MaterialFormat::BevyPbr => convert_images_to_bevy_pbr(assignment_file, output_directory),
     }
 }
 
-fn convert_images_to_amethyst_format(
-    assignment_file: &PathBuf,
-    output_directory: &PathBuf,
+fn convert_images_to_bevy_pbr(
+    assignment_file: &Path,
+    output_directory: &Path,
 ) -> std::io::Result<()> {
-    if !output_directory.exists() {
-        std::fs::create_dir(output_directory)?;
-    }
+    std::fs::create_dir_all(output_directory)?;
 
-    let assignments: Vec<(MaterialAttribute, String)> =
+    let assignments: Vec<(MaterialAttribute, PathBuf)> =
         ron::de::from_reader(File::open(assignment_file)?).unwrap();
 
     let mut metadata = Vec::new();
     for (attr, path) in assignments.iter() {
         let img = image::open(path).unwrap();
-        let new_name = attr.canonical_name();
-        let converted_img = match attr.convert_image(&img) {
-            Some(i) => i,
-            None => {
-                println!("Skipping {:?}; Depth format not supported yet", path);
-                continue;
-            }
+        let Some(converted_img) = attr.convert_image(&img) else {
+            eprintln!("Skipping {:?}; Depth format not supported yet", path);
+            continue;
         };
+        let new_name = attr.canonical_name();
         converted_img
             .save(output_directory.join(new_name).with_extension("png"))
             .unwrap();
         metadata.push((*attr, path.clone(), img.dimensions()));
     }
 
-    if let Some(img) = combine_metal_and_rough_amethyst(&assignments) {
+    if let Some(img) = combine_metal_blue_rough_green(&assignments) {
         let path = output_directory
             .join(MaterialAttribute::MetallicRoughness.canonical_name())
             .with_extension("png");
-        metadata.push((
-            MaterialAttribute::MetallicRoughness,
-            path.to_str().unwrap().to_string(),
-            img.dimensions(),
-        ));
-
-        img.save(path).unwrap()
+        img.save(&path).unwrap();
+        metadata.push((MaterialAttribute::MetallicRoughness, path, img.dimensions()));
     }
 
     std::fs::write(
@@ -64,53 +52,37 @@ fn convert_images_to_amethyst_format(
     Ok(())
 }
 
-fn combine_metal_and_rough_amethyst(
-    assignments: &[(MaterialAttribute, String)],
+/// Write the metal and rough grayscale values into the blue and green channels.
+fn combine_metal_blue_rough_green(
+    assignments: &[(MaterialAttribute, PathBuf)],
 ) -> Option<DynamicImage> {
-    let metal = open_attribute(assignments, MaterialAttribute::Metallic);
-    let rough = open_attribute(assignments, MaterialAttribute::Roughness);
+    let metal = open_attribute(assignments, MaterialAttribute::Metallic)?;
+    let rough = open_attribute(assignments, MaterialAttribute::Roughness)?;
 
-    metal.and_then(|m| {
-        rough.and_then(|r| {
-            if m.dimensions() != r.dimensions() {
-                return None;
-            }
+    if metal.dimensions() != rough.dimensions() {
+        return None;
+    }
 
-            // Write the metal and rough grayscale values into the blue and green channels.
-            let mut metal_rough = RgbImage::new(m.width(), m.height());
-            let metal_gray = m.to_luma8();
-            let rough_gray = r.to_luma8();
-            for (x, y, pixel) in metal_rough.enumerate_pixels_mut() {
-                *pixel = Rgb([
-                    0,
-                    rough_gray.get_pixel(x, y).0[0],
-                    metal_gray.get_pixel(x, y).0[0],
-                ]);
-            }
+    let mut metal_rough = RgbImage::new(metal.width(), metal.height());
+    let metal_gray = metal.to_luma8();
+    let rough_gray = rough.to_luma8();
+    for (x, y, pixel) in metal_rough.enumerate_pixels_mut() {
+        *pixel = Rgb([
+            0,
+            rough_gray.get_pixel(x, y).0[0],
+            metal_gray.get_pixel(x, y).0[0],
+        ]);
+    }
 
-            Some(DynamicImage::ImageRgb8(metal_rough))
-        })
-    })
+    Some(DynamicImage::ImageRgb8(metal_rough))
 }
 
 fn open_attribute(
-    assignments: &[(MaterialAttribute, String)],
+    assignments: &[(MaterialAttribute, PathBuf)],
     open_attr: MaterialAttribute,
 ) -> Option<DynamicImage> {
-    find_attribute_path(assignments, open_attr).map(|path| image::open(path).unwrap())
-}
-
-fn find_attribute_path(
-    assignments: &[(MaterialAttribute, String)],
-    find_attr: MaterialAttribute,
-) -> Option<&String> {
-    assignments.iter().find_map(
-        |(attr, path)| {
-            if *attr == find_attr {
-                Some(path)
-            } else {
-                None
-            }
-        },
-    )
+    assignments
+        .iter()
+        .find_map(|(attr, path)| (*attr == open_attr).then_some(path))
+        .map(|path| image::open(path).unwrap())
 }

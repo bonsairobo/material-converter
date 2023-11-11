@@ -25,7 +25,7 @@ enum Args {
         /// A RON file serialization of a `Vec<(MaterialImage, String)>`,
         /// containing the assignment guesses.
         #[arg(short, long)]
-        output: PathBuf,
+        output: Option<PathBuf>,
     },
     /// Convert images to the desired format.
     ///
@@ -79,7 +79,10 @@ fn main() -> std::io::Result<()> {
         Args::GuessInput {
             input: input_directory,
             output: output_file,
-        } => guess_input(&input_directory, &output_file),
+        } => guess_input(
+            &input_directory,
+            &output_file.unwrap_or_else(|| input_directory.join("guesses").with_extension("ron")),
+        ),
         Args::ConvertImages {
             assignments: assignment_file,
             format,

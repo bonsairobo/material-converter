@@ -1,6 +1,6 @@
 use super::MaterialAttribute;
 use std::collections::HashSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
     ("ao", MaterialAttribute::AmbientOcclusion),
@@ -17,7 +17,7 @@ const SUBSTRING_MAP: [(&str, MaterialAttribute); 10] = [
 
 pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Result<()> {
     let mut guessed_attrs = HashSet::<MaterialAttribute>::new();
-    let mut guesses = Vec::<(MaterialAttribute, String)>::new();
+    let mut guesses = Vec::<(MaterialAttribute, PathBuf)>::new();
     for entry in std::fs::read_dir(input_directory)? {
         let entry = entry?;
         let path = entry.path();
@@ -47,7 +47,7 @@ pub fn guess_input(input_directory: &Path, output_file: &Path) -> std::io::Resul
             if found_match {
                 eprintln!("Found multiple matches for {:?}", path);
             }
-            guesses.push((*attr, path.to_string_lossy().to_string()));
+            guesses.push((*attr, path.clone()));
             found_match = true;
         }
 
