@@ -14,7 +14,15 @@ use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
 pub enum MaterialFormat {
-    /// Suitable for use with the Amethyst engine's PBR render pass.
+    /// Suitable for use with the Bevy engine's PBR render pass.
+    ///
+    /// - albedo: RGBA8 (sRGB)
+    /// - ambient occlusion: Luma8 (linear)
+    /// - depth: Luma8 (linear)
+    /// - emissive: Luma8 (linear)
+    /// - metallic_roughness: RGB8 (linear)
+    ///   - only green and blue channels are used
+    /// - normal: RGB8 (linear)
     BevyPbr,
 }
 
@@ -31,14 +39,14 @@ impl FromStr for MaterialFormat {
 
 #[derive(Clone, Copy, Debug, Deserialize, Hash, Eq, PartialEq, Serialize)]
 pub enum MaterialAttribute {
-    Albedo,
+    Albedo, // AKA base color
     AmbientOcclusion,
     Depth, // AKA height
     Emissive,
     Metallic,
     MetallicRoughness,
-    Roughness,
     Normal,
+    Roughness,
 }
 
 impl MaterialAttribute {
