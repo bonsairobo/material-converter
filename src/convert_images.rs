@@ -1,5 +1,6 @@
 use super::{MaterialAttribute, MaterialFormat};
-use crate::{toktx2, Ktx2TextureCodec, TextureFormat};
+use crate::toktx::toktx2;
+use crate::{Ktx2TextureCodec, TextureFormat};
 use anyhow::Context;
 use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
 use std::fs::File;
