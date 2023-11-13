@@ -1,6 +1,5 @@
-use crate::TextureFormat;
-
 use super::{MaterialAttribute, MaterialFormat};
+use crate::{toktx2, Ktx2TextureCodec, TextureFormat};
 use anyhow::Context;
 use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
 use std::fs::File;
@@ -41,9 +40,22 @@ fn convert_images_to_bevy_pbr(
             continue;
         };
         let new_name = attr.canonical_name();
-        let TextureFormat::Png = texture_format;
-        let new_path = output_directory.join(new_name).with_extension("png");
-        converted_img.save(new_path)?;
+
+        match texture_format {
+            TextureFormat::Png => {
+                let new_path = output_directory.join(new_name).with_extension("png");
+                converted_img.save(new_path)?;
+            }
+            TextureFormat::Ktx2Astc => {
+                // Start by writing a PNG so we can invoke the "toktx" tool on it.
+                let png_path = output_directory.join(new_name).with_extension("png");
+                converted_img.save(&png_path)?;
+
+                let output_path = png_path.with_extension("ktx2");
+                toktx2(&png_path, *attr, Ktx2TextureCodec::Astc, &output_path)?;
+            }
+        }
+
         metadata.push((*attr, path.clone(), img.dimensions()));
     }
 
