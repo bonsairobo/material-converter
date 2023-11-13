@@ -1,6 +1,6 @@
 use clap::Parser;
 use material_converter::{
-    convert_images, feeling_lucky, guess_input, make_array_material, MaterialFormat,
+    convert_images, feeling_lucky, guess_input, make_array_material, MaterialFormat, TextureFormat,
 };
 use std::path::PathBuf;
 
@@ -37,8 +37,11 @@ enum Args {
         #[arg(short, long)]
         assignments: PathBuf,
         /// The desired output material format.
+        #[arg(short, long, default_value_t = MaterialFormat::BevyPbr)]
+        material_format: MaterialFormat,
+        /// The desired output texture format.
         #[arg(short, long)]
-        format: MaterialFormat,
+        texture_format: TextureFormat,
         /// The output directory. Will be created if it does not exist.
         #[arg(short, long)]
         output: PathBuf,
@@ -54,6 +57,9 @@ enum Args {
         /// The input directories.
         #[arg(short, long)]
         input: Vec<PathBuf>,
+        /// The desired output texture format.
+        #[arg(short, long)]
+        texture_format: TextureFormat,
         /// The output directory. Will be created if it does not exist.
         #[arg(short, long)]
         output: PathBuf,
@@ -66,8 +72,11 @@ enum Args {
         /// The input directories.
         input: Vec<PathBuf>,
         /// The desired output material format.
+        #[arg(short, long, default_value_t = MaterialFormat::BevyPbr)]
+        material_format: MaterialFormat,
+        /// The desired output texture format.
         #[arg(short, long)]
-        format: MaterialFormat,
+        texture_format: TextureFormat,
         /// The output directory. Will be created if it does not exist.
         #[arg(short, long)]
         output: PathBuf,
@@ -85,20 +94,29 @@ fn main() -> anyhow::Result<()> {
         ),
         Args::ConvertImages {
             assignments: assignment_file,
-            format,
+            material_format,
+            texture_format,
             output: output_directory,
-        } => convert_images(&assignment_file, &format, &output_directory),
+        } => convert_images(
+            &assignment_file,
+            material_format,
+            texture_format,
+            &output_directory,
+        ),
         Args::MakeArrayMaterial {
             input: input_directories,
+            texture_format,
             output: output_directory,
-        } => make_array_material(&input_directories, &output_directory),
+        } => make_array_material(&input_directories, texture_format, &output_directory),
         Args::FeelingLucky {
             input: input_directories,
-            format: desired_material_format,
+            material_format,
+            texture_format,
             output: output_directory,
         } => feeling_lucky(
             &input_directories,
-            &desired_material_format,
+            material_format,
+            texture_format,
             &output_directory,
         ),
     }

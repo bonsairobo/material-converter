@@ -1,3 +1,5 @@
+use crate::TextureFormat;
+
 use super::{MaterialAttribute, MaterialFormat};
 use anyhow::Context;
 use image::{DynamicImage, GenericImageView, Rgb, RgbImage};
@@ -6,16 +8,20 @@ use std::path::{Path, PathBuf};
 
 pub fn convert_images(
     assignment_file: &Path,
-    output_format: &MaterialFormat,
+    material_format: MaterialFormat,
+    texture_format: TextureFormat,
     output_directory: &Path,
 ) -> anyhow::Result<()> {
-    match output_format {
-        MaterialFormat::BevyPbr => convert_images_to_bevy_pbr(assignment_file, output_directory),
+    match material_format {
+        MaterialFormat::BevyPbr => {
+            convert_images_to_bevy_pbr(assignment_file, texture_format, output_directory)
+        }
     }
 }
 
 fn convert_images_to_bevy_pbr(
     assignment_file: &Path,
+    texture_format: TextureFormat,
     output_directory: &Path,
 ) -> anyhow::Result<()> {
     std::fs::create_dir_all(output_directory)?;
@@ -35,6 +41,7 @@ fn convert_images_to_bevy_pbr(
             continue;
         };
         let new_name = attr.canonical_name();
+        let TextureFormat::Png = texture_format;
         let new_path = output_directory.join(new_name).with_extension("png");
         converted_img.save(new_path)?;
         metadata.push((*attr, path.clone(), img.dimensions()));

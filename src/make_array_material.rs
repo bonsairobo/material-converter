@@ -1,4 +1,5 @@
 use super::MaterialAttribute;
+use crate::TextureFormat;
 use anyhow::Context;
 use image::GenericImage;
 use std::fs::File;
@@ -6,6 +7,7 @@ use std::path::{Path, PathBuf};
 
 pub fn make_array_material(
     input_directories: &[PathBuf],
+    texture_format: TextureFormat,
     output_directory: &Path,
 ) -> anyhow::Result<()> {
     std::fs::create_dir_all(output_directory)?;
@@ -22,6 +24,7 @@ pub fn make_array_material(
         let mut concat_img = attr.new_image(width, height * num_layers as u32);
         for (i, in_dir) in input_directories.iter().enumerate() {
             let start_y = i as u32 * height;
+            let TextureFormat::Png = texture_format;
             let img_path = in_dir.join(attr.canonical_name()).with_extension("png");
             let img = image::open(&img_path).with_context(|| format!("{img_path:?}"))?;
             concat_img.copy_from(&img, 0, start_y)?;

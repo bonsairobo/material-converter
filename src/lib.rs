@@ -8,11 +8,11 @@ pub use feeling_lucky::feeling_lucky;
 pub use guess_input::guess_input;
 pub use make_array_material::make_array_material;
 
+use clap::ValueEnum;
 use image::DynamicImage;
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 
-#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, ValueEnum)]
 pub enum MaterialFormat {
     /// Suitable for use with the Bevy engine's PBR render pass.
     ///
@@ -26,15 +26,17 @@ pub enum MaterialFormat {
     BevyPbr,
 }
 
-impl FromStr for MaterialFormat {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "bevy" | "bevy-pbr" => Ok(MaterialFormat::BevyPbr),
-            _ => Err(format!("{} is not a supported MaterialFormat", s)),
+impl std::fmt::Display for MaterialFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BevyPbr => write!(f, "bevy-pbr"),
         }
     }
+}
+
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq, ValueEnum)]
+pub enum TextureFormat {
+    Png,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Hash, Eq, PartialEq, Serialize)]
