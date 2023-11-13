@@ -32,13 +32,13 @@ fn convert_images_to_bevy_pbr(
 
     let mut metadata = Vec::new();
     for (attr, path) in &assignments {
-        let img = image::open(path).with_context(|| format!("{path:?}"))?;
-        let Some(converted_img) = attr.convert_image(&img) else {
-            if attr == &MaterialAttribute::Depth {
-                eprintln!("Skipping {:?}; Depth format not supported yet", path);
-            }
+        if let MaterialAttribute::Metallic | MaterialAttribute::Roughness = attr {
+            // These are handled separately.
             continue;
-        };
+        }
+
+        let img = image::open(path).with_context(|| format!("{path:?}"))?;
+        let converted_img = attr.convert_image(&img);
         let new_name = attr.canonical_name();
 
         match texture_format {

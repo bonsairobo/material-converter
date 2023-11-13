@@ -60,34 +60,39 @@ pub enum MaterialAttribute {
 impl MaterialAttribute {
     fn canonical_name(&self) -> &str {
         match self {
-            MaterialAttribute::AmbientOcclusion => "ao",
-            MaterialAttribute::Albedo => "albedo",
-            MaterialAttribute::Depth => "depth",
-            MaterialAttribute::Emissive => "emissive",
-            MaterialAttribute::Metallic => "metal",
-            MaterialAttribute::MetallicRoughness => "metal_rough",
-            MaterialAttribute::Normal => "normal",
-            MaterialAttribute::Roughness => "rough",
+            Self::AmbientOcclusion => "ao",
+            Self::Albedo => "albedo",
+            Self::Depth => "depth",
+            Self::Emissive => "emissive",
+            Self::Metallic => "metal",
+            Self::MetallicRoughness => "metal_rough",
+            Self::Normal => "normal",
+            Self::Roughness => "rough",
         }
     }
 
     fn new_image(&self, w: u32, h: u32) -> DynamicImage {
         match self {
-            MaterialAttribute::AmbientOcclusion
-            | MaterialAttribute::Depth
-            | MaterialAttribute::MetallicRoughness
-            | MaterialAttribute::Normal => DynamicImage::new_rgb8(w, h),
-            MaterialAttribute::Albedo => DynamicImage::new_rgba8(w, h),
-            _ => unimplemented!(),
+            Self::AmbientOcclusion
+            | Self::Depth
+            | Self::Emissive
+            | Self::Metallic
+            | Self::Roughness => DynamicImage::new_luma8(w, h),
+            Self::MetallicRoughness | Self::Normal => DynamicImage::new_rgb8(w, h),
+            Self::Albedo => DynamicImage::new_rgba8(w, h),
         }
     }
 
-    fn convert_image(&self, img: &DynamicImage) -> Option<DynamicImage> {
+    fn convert_image(&self, img: &DynamicImage) -> DynamicImage {
         match self {
-            MaterialAttribute::Normal => Some(DynamicImage::ImageRgb8(img.to_rgb8())),
-            MaterialAttribute::Albedo => Some(DynamicImage::ImageRgba8(img.to_rgba8())),
-            MaterialAttribute::AmbientOcclusion => Some(DynamicImage::ImageRgb8(img.to_rgb8())),
-            _ => None,
+            Self::Albedo => DynamicImage::ImageRgba8(img.to_rgba8()),
+            Self::AmbientOcclusion
+            | Self::Depth
+            | Self::Emissive
+            | Self::Metallic
+            | Self::Roughness => DynamicImage::ImageLuma8(img.to_luma8()),
+            Self::MetallicRoughness => DynamicImage::ImageRgb8(img.to_rgb8()),
+            Self::Normal => DynamicImage::ImageRgb8(img.to_rgb8()),
         }
     }
 
