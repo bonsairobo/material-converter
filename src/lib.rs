@@ -107,7 +107,7 @@ impl MaterialAttribute {
                 "--target_type",
                 "RGBA",
                 "--astc_perceptual",
-                "--assign_oetf",
+                "--convert_oetf",
                 "srgb",
             ],
             Self::AmbientOcclusion
@@ -122,7 +122,7 @@ impl MaterialAttribute {
                 "--genmipmap",
                 "--target_type",
                 "R",
-                "--assign_oetf",
+                "--convert_oetf",
                 "linear",
             ],
             Self::MetallicRoughness => vec![
@@ -133,7 +133,7 @@ impl MaterialAttribute {
                 "--genmipmap",
                 "--target_type",
                 "RGB",
-                "--assign_oetf",
+                "--convert_oetf",
                 "linear",
             ],
             Self::Normal => vec![
@@ -145,10 +145,13 @@ impl MaterialAttribute {
                 "--target_type",
                 "RGB",
                 "--astc_perceptual",
-                "--assign_oetf",
+                "--convert_oetf",
                 "linear",
-                "--normal_mode",
                 "--normalize",
+                // This does a weird 2-component (XY) normal encoding where
+                // RGB=X A=Y. Bevy only support 2-component normals from 2-
+                // channel images.
+                // "--normal_mode",
             ],
         }
     }
